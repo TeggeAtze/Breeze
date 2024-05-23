@@ -64,7 +64,7 @@ export default {
     },
     async created() {
         try {
-            const response = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric`);
+            const response = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?q=${this.city}&appid={API_KEY_HIER}&units=metric`);
             this.weatherData = response.data; // Speichern der erhaltenen Wetterdaten in der Komponentendaten
         } catch (error) {
             console.error(error);
