@@ -65,29 +65,26 @@ import axios from 'axios';
 import daysWeather from './daysWeather.vue';
 
 export default {
-  name: 'myWeather', // Name der Komponente
-  components: {
-    daysWeather, // Einbinden der daysWeather-Komponente
-  },
-  props: {
-    city: String, // Erwartet eine Stadt als Prop
-  },
-  data() {
-    return {
-      weatherData: null // Datenobjekt zum Speichern der Wetterdaten
-    };
-  },
-  async created() {
-    try {
-      // Abrufen der Wetterdaten von der OpenWeatherMap API
-      const response = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric`);
-      // Speichern der erhaltenen Wetterdaten im Datenobjekt der Komponente
-      this.weatherData = response.data;
-    } catch (error) {
-      // Fehlerbehandlung, falls die API-Anfrage fehlschlägt
-      console.error(error);
+    name: 'myWeather',
+    components: {
+        daysWeather,
+    },
+    props: {
+        city: String,
+    },
+    data() {
+        return {
+            weatherData: null
+        };
+    },
+    async created() {
+        try {
+            const response = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric`);
+            this.weatherData = response.data; // Speichern der erhaltenen Wetterdaten in der Komponentendaten
+        } catch (error) {
+            console.error(error);
+        }
     }
-  }
 };
 </script>
 
