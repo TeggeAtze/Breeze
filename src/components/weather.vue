@@ -73,7 +73,7 @@ export default {
   methods: {
     async fetchWeather() {
       try {
-        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric&lang=de`);
+        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid={API_KEY_HIER_EINFÜGEN}&units=metric&lang=de`);
         const weatherData = response.data;
         this.city = weatherData.name;
         this.country = weatherData.sys.country;
