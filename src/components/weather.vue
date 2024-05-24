@@ -50,62 +50,26 @@ import axios from 'axios';
 import daysWeather from './daysWeather.vue';
 
 export default {
-  name: 'myWeather',
-  components: {
-    daysWeather,
-  },
-  data() {
-    return {
-      city: 'Magdeburg',
-      country: 'Deutschland',
-      newCity: '',
-      temperature: null,
-      description: null,
-      windSpeed: null,
-      humidity: null,
-      rainProbability: null,
-      weatherData: null,
-      currentDate: '',
-      currentTime: '',
-      currentDay: '',
-    };
-  },
-  methods: {
-    async fetchWeather() {
-      try {
-        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric&lang=de`);
-        const weatherData = response.data;
-        this.city = weatherData.name;
-        this.country = weatherData.sys.country;
-        this.temperature = weatherData.main.temp;
-        this.description = weatherData.weather[0].description;
-        this.windSpeed = weatherData.wind.speed;
-        this.humidity = weatherData.main.humidity;
-        this.rainProbability = weatherData.clouds.all; // Wolkenbedeckung als Regenwahrscheinlichkeit
-        this.weatherData = weatherData;
-        this.updateDateTime();
-        console.log(this.temperature, this.description); // Debug-Ausgabe
-      } catch (error) {
-        console.error(error);
-      }
+    name: 'myWeather',
+    components: {
+        daysWeather,
     },
-    changeCity() {
-      this.city = this.newCity;
-      this.fetchWeather();
+    props: {
+        city: String,
     },
-    updateDateTime() {
-      const now = new Date();
-      this.currentDate = now.toLocaleDateString('de-DE');
-      this.currentTime = now.toLocaleTimeString('de-DE', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      this.currentDay = now.toLocaleDateString('de-DE', { weekday: 'long' });
+    data() {
+        return {
+            weatherData: null
+        };
     },
-  },
-  created() {
-    this.fetchWeather();
-  },
+    async created() {
+        try {
+            const response = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric`);
+            this.weatherData = response.data; // Speichern der erhaltenen Wetterdaten in der Komponentendaten
+        } catch (error) {
+            console.error(error);
+        }
+    }
 };
 </script>
 
