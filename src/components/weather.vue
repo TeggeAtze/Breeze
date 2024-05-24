@@ -1,56 +1,43 @@
 <template>
-  <!-- Hauptcontainer für die Wetterkomponente -->
   <div class="container p-0">
     <div class="d-flex">
-      <!-- Hauptwetterkarte -->
       <div class="card main-div w-100">
         <div class="p-3">
-          <!-- Anzeige des Wochentages -->
-          <h2 class="mb-1 day">Donnerstag</h2>
-          <!-- Platzhalter für das Datum -->
-          <p class="text-light date mb-0">Datum</p>
-          <!-- Platzhalter für die aktuelle Uhrzeit -->
-          <small>16:08</small>
-          <!-- Anzeige des Ortsnamens und des Landes mit einem Standortsymbol -->
+          <h2 class="mb-1 day">{{ currentDay }}</h2>
+          <p class="text-light date mb-0">{{ currentDate }}</p>
+          <small>{{ currentTime }}</small>
           <h2 class="place">
-            <i class="fas fa-map-marker-alt"></i> Magdeburg <small>Deutschland</small>
+            <i class="fas fa-map-marker-alt"></i> {{ city }}, {{ country }}
           </h2>
           <div class="temp">
-            <!-- Anzeige der aktuellen Temperatur -->
-            <h1 class="weather-temp">19&deg;</h1>
-            <!-- Platzhalter für die Wetterbeschreibung -->
-            <h2 class="text-light">Beschreibung...</h2>
+            <h1 class="weather-temp">{{ Math.round(temperature) }}&deg;</h1>
+            <h2 class="text-light">{{ description }}</h2>
           </div>
         </div>
       </div>
-      <!-- Karte für zusätzliche Wetterinformationen -->
       <div class="card card-2 w-100">
         <table class="m-4">
           <tbody>
-            <!-- Zeile für die Windstärke -->
             <tr>
               <th>Windstärke</th>
-              <td>100</td>
+              <td>{{ windSpeed }} km/h</td>
             </tr>
-            <!-- Zeile für die Feuchtigkeit -->
             <tr>
               <th>Feuchtigkeit</th>
-              <td>100</td>
+              <td>{{ humidity }}%</td>
             </tr>
-            <!-- Zeile für die Regenwahrscheinlichkeit -->
             <tr>
               <th>Regenwahrscheinlichkeit</th>
-              <td>100</td>
+              <td>{{ rainProbability }}%</td>
             </tr>
           </tbody>
         </table>
 
-        <!-- Komponente für die Wettervorhersage der kommenden Tage -->
         <daysWeather></daysWeather>
         <div id="div_Form" class="d-flex m-3 justify-content-center">
-          <form action="">
-            <!-- Button zum Ändern des angezeigten Ortes -->
-            <input type="button" value="Ort ändern" class="btn change-btn btn-primary">
+          <form @submit.prevent="changeCity">
+            <input type="text" v-model="newCity" placeholder="Neuer Ort" class="form-control mr-2">
+            <input type="submit" value="Ort ändern" class="btn change-btn btn-primary">
           </form>
         </div>
       </div>
@@ -59,32 +46,66 @@
 </template>
 
 <script>
-// Importieren von Axios für HTTP-Anfragen
 import axios from 'axios';
-// Importieren der daysWeather-Komponente
 import daysWeather from './daysWeather.vue';
 
 export default {
-    name: 'myWeather',
-    components: {
-        daysWeather,
+  name: 'myWeather',
+  components: {
+    daysWeather,
+  },
+  data() {
+    return {
+      city: 'Magdeburg',
+      country: 'Deutschland',
+      newCity: '',
+      temperature: null,
+      description: null,
+      windSpeed: null,
+      humidity: null,
+      rainProbability: null,
+      weatherData: null,
+      currentDate: '',
+      currentTime: '',
+      currentDay: '',
+    };
+  },
+  methods: {
+    async fetchWeather() {
+      try {
+        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric&lang=de`);
+        const weatherData = response.data;
+        this.city = weatherData.name;
+        this.country = weatherData.sys.country;
+        this.temperature = weatherData.main.temp;
+        this.description = weatherData.weather[0].description;
+        this.windSpeed = weatherData.wind.speed;
+        this.humidity = weatherData.main.humidity;
+        this.rainProbability = weatherData.clouds.all; // Wolkenbedeckung als Regenwahrscheinlichkeit
+        this.weatherData = weatherData;
+        this.updateDateTime();
+        console.log(this.temperature, this.description); // Debug-Ausgabe
+      } catch (error) {
+        console.error(error);
+      }
     },
-    props: {
-        city: String,
+    changeCity() {
+      this.city = this.newCity;
+      this.fetchWeather();
     },
-    data() {
-        return {
-            weatherData: null
-        };
+    updateDateTime() {
+      const now = new Date();
+      this.currentDate = now.toLocaleDateString('de-DE');
+      this.currentTime = now.toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      this.currentDay = now.toLocaleDateString('de-DE', { weekday: 'long' });
     },
-    async created() {
-        try {
-            const response = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?q=${this.city}&appid=7e9510c437c764a83a929511dc6ee3a3&units=metric`);
-            this.weatherData = response.data; // Speichern der erhaltenen Wetterdaten in der Komponentendaten
-        } catch (error) {
-            console.error(error);
-        }
-    }
+  },
+  created() {
+    this.fetchWeather();
+  },
 };
 </script>
 
